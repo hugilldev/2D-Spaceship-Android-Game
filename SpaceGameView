@@ -1,0 +1,225 @@
+package android.example.spaceinvproject;
+
+import android.content.Context; //gives android environment info - allows use of android sys functionality
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas; //canvas, colour and paint allow to draw to the screen
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF; //easy collision detection for game objs
+import android.util.Log; //error detection in thread
+import android.view.MotionEvent;
+import android.view.SurfaceHolder; //surface for drawing
+import android.view.SurfaceView; //thread use and implementation of a runnable interface
+//import android.content.res.AssetFileDescriptor;
+//import android.content.res.AssetManager;
+//import android.media.AudioManager;
+//import android.media.SoundPool;
+
+import java.io.IOException; //error handling
+
+//runnable interface, need to implement run method - 'runs' the game
+public class SpaceGameView extends SurfaceView implements Runnable {
+
+    private Context context;
+
+    private Thread gameThread = null;
+    //thread
+
+    private SurfaceHolder ourHolder;
+    //surfaceHolder locks surface before graphics are drawn
+    private volatile boolean playing;
+    //boolean to be set/unset depending on whether the game is running or not
+
+    private boolean paused = true;
+    //game paused at start
+
+    private Canvas canvas;
+
+    private Paint paint;
+    //canvas and paint obj - drawing to UI thread would cause performance issues, Surace vies allows to draw on
+    //custom view from a separate thread it controls
+
+    private long fps;
+    //tracks fps
+
+    private long timeThisFrame;
+    //to calculate fps
+
+    private int screenX;
+    private int screenY;
+    //size of screen in pixels
+
+    private int score = 0;
+    //Score
+
+    private int lives = 3;
+    //lives
+
+    private Spaceship spaceShip;
+
+
+    public SpaceGameView(Context context, int x, int y) { //constructor
+
+        super(context); //globally available superclass attributes which can be used in other methods
+
+        this.context = context;
+
+        ourHolder = getHolder(); //ourHolder = drawing surface
+        paint = new Paint();
+
+        screenX = x;
+        screenY = y;
+
+        initLevel(); //calls initLevel to initialise game screen
+    }
+
+    private void initLevel() { //method used to initialise all game objs when new game created
+        spaceShip = new Spaceship(context, screenX, screenY);
+    }
+
+
+    @Override
+    public void run() {
+        while (playing) {
+            //score = 0;
+
+            //checks the time, does updat and draws (1 time cycle)
+            //then calculates elapsed time and assigns to fps
+            long startTime = System.currentTimeMillis();
+
+            //updates frame
+            if (!paused) {
+                update();
+            }
+
+            //draws frame
+            draw();
+
+            long timeThis = System.currentTimeMillis() - startTime;
+            if (timeThis >= 1) {
+                fps = 1000 / timeThis;
+            }
+
+        }
+
+    }
+
+
+    private void update() {
+        //will call update methods of each obj that would change in a time cycle and then check for collisions
+        spaceShip.update(fps);
+        //checkCollisions();
+    }
+
+
+    private void draw() {
+
+        if (ourHolder.getSurface().isValid()) {
+
+            canvas = ourHolder.lockCanvas(); //lock canvas for drawing
+
+            //draw background colour and text on screen
+            //canvas.drawColor(Color.argb(255, 26, 128, 182));
+            canvas.drawBitmap(spaceShip.getBackgroundBitmap(), 0, 0, paint);
+
+            paint.setColor(Color.argb(255, 249, 129, 0));
+            paint.setTextSize(40);
+            canvas.drawText("Score: " + score + "   Lives: " +
+                    lives, 10, 50, paint);
+
+            //canvas.drawBitmap(spaceShip.getBitmap(),
+            //      spaceShip.getX(),
+            //    screenY-50,
+            //  paint);
+
+            canvas.drawBitmap(spaceShip.currentBitmap, spaceShip.getX(), spaceShip.getY() - 50, paint);
+
+
+            //draw the game objects
+
+            ourHolder.unlockCanvasAndPost(canvas); //unlock the surface and show on screen
+        }
+    }
+
+
+    public void pause() {
+
+        //if SpaceGameActivity app activity is paused - shutdown thread
+
+        playing = false;
+        try {
+            gameThread.join();
+        } catch (InterruptedException e) {
+            Log.e("Error:", "joining thread");
+        }
+
+    }
+
+    public void resume() {
+
+        //if app activity is started then start thread
+
+        playing = true;
+        gameThread = new Thread(this);
+        gameThread.start();
+    }
+
+    //allows the app to detect screen touch inputs
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent) {
+
+        switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
+
+            //motion detected
+            case MotionEvent.ACTION_DOWN:
+
+                paused = false;
+
+                if (motionEvent.getY() > (float) screenY / 2) {
+                    if (motionEvent.getX() > (float) screenX / 2) {
+                        spaceShip.setMovementState(spaceShip.RIGHT);
+                    } else {
+                        spaceShip.setMovementState(spaceShip.LEFT);
+                    }
+                }
+
+                if(motionEvent.getY()< (float) screenY / 2 ){
+                    if(motionEvent.getX()> (float) screenX / 2) {
+                        spaceShip.setMovementState(spaceShip.UP);
+                    }else{
+                        spaceShip.setMovementState(spaceShip.DOWN);
+                    }
+                }
+                break;
+
+                //if(motionEvent.getY()<screenY - screenY/8){
+                //when bullets fired
+                // if(bullet.shoot(playerShip.getX()+playerShip.getLength()/2, screenY, bullet.UP)){
+                //    soundPool.play(shootID, 1, 1, 0, 0, 1);
+                //  }
+                //}
+
+                //for when player removes finger from screen
+            case MotionEvent.ACTION_UP:
+                //if(motionEvent.getY()>screenY - screenY /10){
+                spaceShip.setMovementState(spaceShip.STOPPED);
+                break;
+        }
+        return true;
+    }
+
+    //private void checkCollisions(){
+        //COMMENTS HERE
+        //if(spaceShip.getX()>screenX - spaceShip.getLength())
+          //  spaceShip.setX(0);
+        //if(spaceShip.getX()<0+spaceShip.getLength())
+//          spaceShip.setX(screenX);
+//
+//      if(spaceShip.getY()>screenY - getLength())
+//          spaceShip.setY(0);
+//      if(spaceShip.getY()<0+spaceShip.getLength())
+//          spaceShip.setY(screenY);
+//  }
+
+}  // end class
