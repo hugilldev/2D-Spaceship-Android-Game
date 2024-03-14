@@ -1,0 +1,48 @@
+package android.example.spaceinvproject;
+
+import android.app.Activity;
+import android.graphics.Point;
+import android.os.Bundle;
+import android.view.Display;
+import android.view.MotionEvent;
+
+
+public class MainActivity extends Activity {
+
+
+    SpaceGameView spaceGameView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+
+        Display display = getWindowManager().getDefaultDisplay(); //allows us to know size of device screen
+        //passes back lower right XY co-ords (top left XY co-ords = 0,0)
+        Point size = new Point();
+        display.getSize(size); //retrieves screen size
+
+
+        spaceGameView = new SpaceGameView(this, size.x, size.y);
+        setContentView(spaceGameView);
+
+    }
+
+    // This method executes when the player starts the game
+    @Override
+    protected void onResume() { //Calls resume method to restart game thread
+        super.onResume();
+
+        // Tell the gameView resume method to execute
+        spaceGameView.resume();
+    }
+
+    // This method executes when the player quits the game
+    @Override
+    protected void onPause() { //stops game thread by calling onPause method
+        super.onPause();
+
+        // Tell the gameView pause method to execute
+        spaceGameView.pause();
+    }
+}
