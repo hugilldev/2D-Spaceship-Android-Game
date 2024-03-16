@@ -1,11 +1,7 @@
-Spaceship Android project for university module
+###CHANGELOG
 
 
-
-
-CHANGELOG
-
-29/02/2024 - Week 5: Basic skeleton [Complete]
+#29/02/2024 - Week 5: Basic skeleton [Complete]
 - Created new project
 - Created mainActivity with provided code
 - Created java class with provided code
@@ -15,7 +11,7 @@ CHANGELOG
 -  Added comments to explain barebones code
 
 
-03/03/2024 - Week 6: Images and directions [Complete]
+#03/03/2024 - Week 6: Images and directions [Complete]
 - Notes:
   - What needs to be included in the spaceShip class
     - Spaceship images for each direction
@@ -35,13 +31,13 @@ CHANGELOG
 - Ran app successfully
 
 
-07/03/2024 - Week 7: Movement [Complete]
+#7/03/2024 - Week 7: Movement [Complete]
 - Added skeleton code provided for movement
 - Updated directional controls as they were a little off and made movement difficult and buggy
 - Fixed an issue wherein the spaceship would get stuck at exactly (0.5x, 0.5y) due to an issue with the movement
 
 
-16/03/2024 - Week 8: Bullets [Complete]
+#16/03/2024 - Week 8: Bullets [Complete]
 - Added the skeleton code provided for bullet class
 - Found better images for using in the game
     - Added new background
