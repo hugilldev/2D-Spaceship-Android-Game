@@ -1,7 +1,10 @@
-###CHANGELOG
+## CHANGELOG
 
 
-#29/02/2024 - Week 5: Basic skeleton [Complete]
+
+<br>
+
+### 29/02/2024 - Week 5: Basic skeleton [Complete]
 - Created new project
 - Created mainActivity with provided code
 - Created java class with provided code
@@ -9,9 +12,9 @@
 - Successfully ran project to see blue screen with score and life counter
 - spaceGameView.java became display code
 -  Added comments to explain barebones code
+<br>
 
-
-#03/03/2024 - Week 6: Images and directions [Complete]
+### 03/03/2024 - Week 6: Images and directions [Complete]
 - Notes:
   - What needs to be included in the spaceShip class
     - Spaceship images for each direction
@@ -29,15 +32,15 @@
 - Added images
 - Added getter and setter for bitmap background (faff!)
 - Ran app successfully
+<br>
 
-
-#7/03/2024 - Week 7: Movement [Complete]
+### 07/03/2024 - Week 7: Movement [Complete]
 - Added skeleton code provided for movement
 - Updated directional controls as they were a little off and made movement difficult and buggy
 - Fixed an issue wherein the spaceship would get stuck at exactly (0.5x, 0.5y) due to an issue with the movement
+<br>
 
-
-#16/03/2024 - Week 8: Bullets [Complete]
+### 16/03/2024 - Week 8: Bullets [Complete]
 - Added the skeleton code provided for bullet class
 - Found better images for using in the game
     - Added new background
@@ -46,3 +49,6 @@
     - Also added an image for multiple firings, not sure how to implement this though
         - Should I fire three individual bullets?
         - Or should the ship fire the one bullet with the multiple fire image but with triple damage?
+          <br>
+
+
