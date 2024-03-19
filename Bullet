@@ -1,0 +1,114 @@
+package android.example.spaceinvproject;
+
+import android.graphics.RectF;
+public class Bullet {
+
+    private float x;
+    private float y;
+    private int width;
+    private int height;
+
+    private RectF rect;
+    private boolean isActive;
+
+    public final int LEFT = 1;
+    public final int RIGHT = 2;
+    public final int UP = 3;
+    public final int DOWN = 4;
+
+    //how to redesign for multiple bullets?
+
+    int heading = -1; //no movement of bullet obj - not firing
+    float speed = 650; //speed of bullet fire based on fps, allows for consistent movement on the screen
+
+    private int screenY;
+    private int screenX;
+
+    //use different images for each direction?
+
+    public Bullet(int screenY, int screenX) { //constructor for bullet class
+        isActive = false;
+        this.screenX = screenX;
+        this.screenY = screenY;
+        this.rect = new RectF();
+    }
+
+    public boolean shoot(float startX, float startY, int direction) {
+        if (isActive) {
+            return false;
+        }
+
+        //if bullet was not active, start new
+        x = startX;
+        y = startY;
+        heading = direction;
+        isActive = true;
+        //updates rectangular positioning
+        rect.left = x;
+        rect.right = x + width;
+        rect.top = y;
+        rect.bottom = y + height;
+
+        if ((direction == RIGHT) || (direction == LEFT)) {
+            width = screenX / 20;
+            height = 5;
+        } else {
+            height = screenY / 20;
+            width = 5;
+        }
+
+        return true;
+    }
+
+    public void update(long fps){
+        if(heading == UP){
+            y = y - speed/fps;
+        }else if (heading == DOWN){
+            y = y + speed/fps;
+        }else if (heading == RIGHT){
+            x = x + speed/fps;
+        }else{
+            x = x - speed/fps;
+        }
+
+        //check bullet is active
+        if(x < 0 || x > screenX || y < 0 || y > screenY) {
+            //bullet offscreen
+            isActive = false;
+        }
+
+        //updates rectangular positioning
+        rect.left = x;
+        rect.right = x + width;
+        rect.top = y;
+        rect.bottom = y + height;
+    }
+
+    public RectF getRect(){ //returns rectangular positioning
+        return rect;
+    }
+
+    public boolean getStatus(){ //returns whether the bullet is active or not
+        return isActive;
+    }
+
+    public void setInactive(){ //Changes state of firing from active to inactive
+        isActive = false;
+    }
+
+    public float getImpactPointY(){ //returns impact point in relation to the Y axis
+        if(heading == DOWN){
+            return y + height;
+        }
+        return y;
+    }
+
+    public float getImpactPointX(){ //returns impact point in relation to X axis
+        if(heading == RIGHT){
+            return x + width;
+        }
+        return x;
+    }
+
+}
+
