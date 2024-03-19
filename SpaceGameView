@@ -58,6 +58,8 @@ public class SpaceGameView extends SurfaceView implements Runnable {
 
     private Spaceship spaceShip;
 
+    private Bullet bullet;
+
 
     public SpaceGameView(Context context, int x, int y) { //constructor
 
@@ -75,7 +77,8 @@ public class SpaceGameView extends SurfaceView implements Runnable {
     }
 
     private void initLevel() { //method used to initialise all game objs when new game created
-        spaceShip = new Spaceship(context, screenX, screenY);
+        bullet = new Bullet(screenY, screenX);
+        spaceShip = new Spaceship(context, screenX, screenY, bullet);
     }
 
 
@@ -109,7 +112,10 @@ public class SpaceGameView extends SurfaceView implements Runnable {
     private void update() {
         //will call update methods of each obj that would change in a time cycle and then check for collisions
         spaceShip.update(fps);
-        //checkCollisions();
+
+        if(bullet.getStatus())
+            bullet.update(fps);
+            //checkCollisions();
     }
 
 
@@ -128,16 +134,13 @@ public class SpaceGameView extends SurfaceView implements Runnable {
             canvas.drawText("Score: " + score + "   Lives: " +
                     lives, 10, 50, paint);
 
-            //canvas.drawBitmap(spaceShip.getBitmap(),
-            //      spaceShip.getX(),
-            //    screenY-50,
-            //  paint);
-
             canvas.drawBitmap(spaceShip.currentBitmap, spaceShip.getX(), spaceShip.getY() - 50, paint);
 
 
-            //draw the game objects
+            if(bullet.getStatus()) //draws bullet based on rectangular positioning
+                canvas.drawRect(bullet.getRect(), paint);
 
+            //draw the game objects
             ourHolder.unlockCanvasAndPost(canvas); //unlock the surface and show on screen
         }
     }
@@ -166,39 +169,49 @@ public class SpaceGameView extends SurfaceView implements Runnable {
     }
 
     //allows the app to detect screen touch inputs
+
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
 
-        switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
+       switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
 
             //motion detected
             case MotionEvent.ACTION_DOWN:
 
+                //spaceShip.fireBullet(bullet);
+                //break;
+                /*spaceShip.fireBullet(bullet.DOWN);
+                break;
+                spaceShip.fireBullet(bullet.LEFT);
+                break;
+                spaceShip.fireBullet(bullet.RIGHT);
+                break;
+
+                return true;*/
+
+
                 paused = false;
 
-                if (motionEvent.getY() > (float) screenY / 2) {
-                    if (motionEvent.getX() > (float) screenX / 2) {
-                        spaceShip.setMovementState(spaceShip.RIGHT);
-                    } else {
-                        spaceShip.setMovementState(spaceShip.LEFT);
-                    }
-                }
-
-                if(motionEvent.getY()< (float) screenY / 2 ){
-                    if(motionEvent.getX()> (float) screenX / 2) {
+                //set the spaceship movement to the direction pressed
+                //cross through the screen
+                if (motionEvent.getX() / screenX > motionEvent.getY() / screenY) {
+                    if (1 - motionEvent.getX() / screenX > motionEvent.getY() / screenY) {
                         spaceShip.setMovementState(spaceShip.UP);
+                    } else {
+                        spaceShip.setMovementState(spaceShip.RIGHT);
+                    }
+                } else {
+                    if (1 - motionEvent.getX() / screenX > motionEvent.getY() / screenY) {
+                        spaceShip.setMovementState(spaceShip.LEFT);
                     }else{
                         spaceShip.setMovementState(spaceShip.DOWN);
                     }
                 }
+                if(spaceShip.fireBullet()) {
+                    //only play sound when bullet fired
+                    //    soundPool.play(shootID, 1, 1, 0, 0, 1);
+                }
                 break;
-
-                //if(motionEvent.getY()<screenY - screenY/8){
-                //when bullets fired
-                // if(bullet.shoot(playerShip.getX()+playerShip.getLength()/2, screenY, bullet.UP)){
-                //    soundPool.play(shootID, 1, 1, 0, 0, 1);
-                //  }
-                //}
 
                 //for when player removes finger from screen
             case MotionEvent.ACTION_UP:
@@ -209,8 +222,17 @@ public class SpaceGameView extends SurfaceView implements Runnable {
         return true;
     }
 
-    //private void checkCollisions(){
-        //COMMENTS HERE
+    private void checkCollisions(){ //sets bullet to inactive if no longer present on screen
+
+        if(bullet.getImpactPointY()<0)
+            bullet.setInactive();
+        if(bullet.getImpactPointY()>screenY)
+            bullet.setInactive();
+
+        if(bullet.getImpactPointX()<0)
+            bullet.setInactive();
+        if(bullet.getImpactPointX()>screenX)
+            bullet.setInactive();
         //if(spaceShip.getX()>screenX - spaceShip.getLength())
           //  spaceShip.setX(0);
         //if(spaceShip.getX()<0+spaceShip.getLength())
@@ -220,6 +242,8 @@ public class SpaceGameView extends SurfaceView implements Runnable {
 //          spaceShip.setY(0);
 //      if(spaceShip.getY()<0+spaceShip.getLength())
 //          spaceShip.setY(screenY);
-//  }
+  }
+
+
 
 }  // end class
