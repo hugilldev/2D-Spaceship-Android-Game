@@ -8,6 +8,7 @@ import android.graphics.RectF;
 public class Spaceship {
 
     private RectF rect;
+    private Bullet bullet;
 
     private int screenX;
     private int screenY;
@@ -25,6 +26,7 @@ public class Spaceship {
     private Bitmap bitmapright;
     public Bitmap currentBitmap;
     //need to know x, y coords of current location
+    public Bitmap bitmapbull;
 
     private Bitmap bitmapback; //to add background
 
@@ -40,79 +42,90 @@ public class Spaceship {
 
     private int movementState;
 
-    public Spaceship(Context context, int screenWidth, int screenHeight){
+    public Spaceship(Context context, int screenWidth, int screenHeight, Bullet bullet1) {
         //set up spacecraft in current game environment
         rect = new RectF();
 
         screenX = screenWidth;
         screenY = screenHeight;
 
-        length = (float) screenX /10;
-        height = (float) screenY /10;
+        length = (float) screenX / 10;
+        height = (float) screenY / 10;
 
-        x = (float) screenX /2;
-        y = (float) screenY /2;
+        x = (float) screenX / 2;
+        y = (float) screenY / 2;
 
         SpaceShipSpeed = 350;
 
-        bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.spaceshipright); //Stretches bitmap to appropriate size for screen res
-        bitmap = Bitmap.createScaledBitmap(bitmap,(int)(length), (int)(height),false);
+        bullet = bullet1;
 
-        bitmapup = BitmapFactory.decodeResource(context.getResources(), R.drawable.spaceshipup);
-        bitmapup = Bitmap.createScaledBitmap(bitmapup, (int)(length), (int)(height), false);
+        bitmapbull = BitmapFactory.decodeResource(context.getResources(), R.drawable.bullet);
+        bitmapbull = Bitmap.createScaledBitmap(bitmapbull, (int) (length), (int) (height), false);
 
-        bitmapright = BitmapFactory.decodeResource(context.getResources(), R.drawable.spaceshipright);
-        bitmapright = Bitmap.createScaledBitmap(bitmapright, (int) (length), (int) (height),false);
+        bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.friendright); //Stretches bitmap to appropriate size for screen res
+        bitmap = Bitmap.createScaledBitmap(bitmap, (int) (length), (int) (height), false);
 
-        bitmapleft = BitmapFactory.decodeResource(context.getResources(), R.drawable.spaceshipleft);
-        bitmapleft = Bitmap.createScaledBitmap(bitmapleft, (int) (length), (int) (height),false);
+        bitmapup = BitmapFactory.decodeResource(context.getResources(), R.drawable.friendup);
+        bitmapup = Bitmap.createScaledBitmap(bitmapup, (int) (length), (int) (height), false);
 
-        bitmapdown = BitmapFactory.decodeResource(context.getResources(), R.drawable.spaceshipdown);
-        bitmapdown = Bitmap.createScaledBitmap(bitmapdown, (int) (length), (int) (height),false);
+        bitmapright = BitmapFactory.decodeResource(context.getResources(), R.drawable.friendright);
+        bitmapright = Bitmap.createScaledBitmap(bitmapright, (int) (length), (int) (height), false);
+
+        bitmapleft = BitmapFactory.decodeResource(context.getResources(), R.drawable.friendleft);
+        bitmapleft = Bitmap.createScaledBitmap(bitmapleft, (int) (length), (int) (height), false);
+
+        bitmapdown = BitmapFactory.decodeResource(context.getResources(), R.drawable.frienddown);
+        bitmapdown = Bitmap.createScaledBitmap(bitmapdown, (int) (length), (int) (height), false);
 
         //display background, scaled to screen x and y size
         bitmapback = BitmapFactory.decodeResource(context.getResources(), R.drawable.background);
         bitmapback = Bitmap.createScaledBitmap(bitmapback, (int) (screenX), (int) (screenY), false);
 
         currentBitmap = bitmapup;
+
     }
 
-    public void setMovementState(int state){
+    public void setMovementState(int state) {
         //sets movement of spaceship
         SpaceShipMoving = state;
     }
 
-    public void update(long fps){
+    public void update(long fps) {
         //required to be called from update method of application
-        if(SpaceShipMoving == LEFT){
+        if (SpaceShipMoving == LEFT) {
             x = x - (float) SpaceShipSpeed / fps;
             currentBitmap = bitmapleft;
-            //WHAT DOES IT DO
-            if((x+length)<=0)
-                x=screenX;
+            if ((x + length) <= 0)
+                x = screenX;
         }
-        if(SpaceShipMoving == RIGHT){
+        if (SpaceShipMoving == RIGHT) {
             x = x + (float) SpaceShipSpeed / fps;
             currentBitmap = bitmapright;
-            //WHAT DOES IT DO
-            if(x>=screenX)
-                x = 0-length;
+            if (x >= screenX)
+                x = 0 - length;
         }
-        if(SpaceShipMoving == UP){
+        if (SpaceShipMoving == UP) {
             y = y - (float) SpaceShipSpeed / fps;
             currentBitmap = bitmapup;
-            //WHAT DOES IT DO
-            if(y+height<=0)
+            if (y + height <= 0)
                 y = screenY;
         }
 
-        if(SpaceShipMoving == DOWN){
-            y=y + (float) SpaceShipSpeed / fps;
+        if (SpaceShipMoving == DOWN) {
+            y = y + (float) SpaceShipSpeed / fps;
             currentBitmap = bitmapdown;
-            //WHAT DOES IT DO
-            if(y>=screenY)
-                y = 0-height;
+            if (y >= screenY)
+                y = 0 - height;
 
+        }
+
+        //if(bullet.heading == UP){
+          //  y = y - spaceship.speed / fps
+        //}
+
+        //will update the movement of the bullet if active
+        if (bullet.getStatus()) {
+            bullet.update(fps);
         }
 
         rect.top = y;
@@ -122,21 +135,21 @@ public class Spaceship {
 
     }
 
-    public RectF getRect(){
+    public RectF getRect() {
         //required to get position for collision detection
         return rect;
     }
 
-    public Bitmap getBitmap(){
+    public Bitmap getBitmap() {
         //required to get current bitmap
         return bitmap;
     }
 
-    public Bitmap getBackgroundBitmap(){
+    public Bitmap getBackgroundBitmap() {
         return bitmapback;
     }
 
-    public float getX(){
+    public float getX() {
         //get x coord
         return x;
     }
@@ -146,13 +159,21 @@ public class Spaceship {
         return y;
     }
 
-    public float getLength(){
+    public float getLength() {
         //get length of image
         return length;
     }
 
-    public float getHeight(){
+    public float getHeight() {
         //get height of image
         return height;
     }
+
+    public boolean fireBullet() {
+        //finds current position of spaceship
+        float spaceshipX = getX();
+        float spaceshipY = getY();
+        return bullet.shoot(spaceshipX + length/2, spaceshipY + height/2, SpaceShipMoving);
+    }
 }
+    
